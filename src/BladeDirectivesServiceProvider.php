@@ -20,7 +20,7 @@ class BladeDirectivesServiceProvider extends ServiceProvider
         Blade::directive('includeFirstSafe', function (string $expression) {
             /**
              * @see \Illuminate\View\Compilers\Concerns\CompilesIncludes@compileIncludeFirst
-             * Attempt to include the first existing file, if none exists. Do nothing.
+             * Attempt to include the first existing file. If none exists, do nothing.
              * Usage: @includeFirstSafe(['potentially-missing-template', 'another-potentially-missing-template'], $set)
              */
             $expression = Blade::stripParentheses($expression);
@@ -66,14 +66,12 @@ class BladeDirectivesServiceProvider extends ServiceProvider
         Blade::directive('includeCached', function ($expression) {
             $expression = Blade::stripParentheses($expression);
 
-            // The rest of the cacheKey needs to be within the generated views.
-            // That way it's stays dynamic. The Str::slug(url('/')) is used
-            // to support multi sites; a cache per application url.
+            // The rest of the cacheKey needs to get defined within the generated views.
+            // That way it stays dynamic. The Str::slug(url('/')) is used to support multi sites.
             // You could use URL::forceRootUrl(...) for this.
             $cacheKey = md5(trim($expression, '\'"'));
 
-            // So it's cached for 5 minutes and refreshed in the background until + 24 hours.
-            // Which never happens but it's required; after that it refreshed directly.
+            // It's cached for 5 minutes and then keeps a stale copy for 24 hours.
             return "<?php echo \Illuminate\Support\Facades\Cache::flexible('include-cache::site-'.\Illuminate\Support\Str::slug(url('/')).'-{$cacheKey}', [now()->addMinutes(5), now()->addDay()], fn() => \$__env->make({$expression}, \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render()); ?>";
         });
     }
