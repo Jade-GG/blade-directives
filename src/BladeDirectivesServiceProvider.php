@@ -70,7 +70,7 @@ class BladeDirectivesServiceProvider extends ServiceProvider
             // This calculates the cache key inside of the generated PHP so that variables are accounted for.
             // NOTE: Complex expressions (e.g. large collections, eloquent models) will cause the json_encode to be slow.
             return "<?php
-\$__cacheKey = md5(json_encode([{$expression}]));
+\$__cacheKey = md5(serialize([{$expression}]));
 echo \Illuminate\Support\Facades\Cache::flexible(
     'include-cache::site-'.\Illuminate\Support\Str::slug(url('/')).'-'.\$__cacheKey,
     [now()->addMinutes(5), now()->addDay()],
